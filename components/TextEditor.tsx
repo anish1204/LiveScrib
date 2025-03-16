@@ -31,7 +31,9 @@ const TextEditor = () => {
     }, [quill]);
 
     useEffect(() => {
-        const s = io("http://localhost:5000");
+        const s = io("https://livescrib-backend.onrender.com");
+        // const socket = io("https://livescrib-backend.onrender.com");
+
         setSocket(s);
         return () => {
             s.disconnect();
