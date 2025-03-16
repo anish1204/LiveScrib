@@ -14,6 +14,10 @@ const TextEditor = () => {
     let router = useRouter();
     const {user } = useUser();
 
+    const leaveRoom = () => {
+        router.push('/dashboard');
+    };
+
     const userName = user?.name;
     const documentId = router.query.slug;
 
@@ -32,8 +36,6 @@ const TextEditor = () => {
 
     useEffect(() => {
         const s = io("https://livescrib-backend.onrender.com");
-        // const socket = io("https://livescrib-backend.onrender.com");
-
         setSocket(s);
         return () => {
             s.disconnect();
@@ -77,16 +79,16 @@ const TextEditor = () => {
             quill.enable();
         });
 
-        socket.emit("join-document", { documentId,username:user?.name });
+        socket.emit("join-document", { documentId, username: user?.name });
 
-    }, [socket, quill, documentId,user]);
+    }, [socket, quill, documentId, user]);
 
     useEffect(() => {
         if (!socket) return;
 
         const updateUserList = (userList: any[]) => {
             setUsers(userList);
-            console.log(userList)
+            console.log(userList);
         };
 
         socket.on("update-user-list", updateUserList);
@@ -116,29 +118,38 @@ const TextEditor = () => {
         };
     }, [socket]);
     
-
+    const downloadDocument = () => {
+        if (!quill) return;
+        const content = quill.root.innerHTML;
+        const blob = new Blob([content], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'document.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
 
     return (
         <div className="h-screen flex bg-gray-900 text-white">
             <div className="w-[25%] px-5 py-5 hidden lg:block mx-4 my-5 border-2 border-amber-50">
                 {
-                    usernames.map((item,index)=>(
+                    usernames.map((item, index) => (
                         <div key={index} className='flex flex-wrap gap-3 col-gap-3'>
-                        <div className="w-[45%] mt-3 h-[150px] flex justify-center items-center bg-gray-600 rounded-[12px]">
-                        <div className="w-[80%] h-[80%] bg-white flex justify-center items-center text-center rounded-full">
-                            <p className="text-2xl text-black">An</p>
-                        </div>
+                            <div className="w-[45%] mt-3 h-[150px] flex justify-center items-center bg-gray-600 rounded-[12px]">
+                                <div className="w-[80%] h-[80%] bg-white flex justify-center items-center text-center rounded-full">
+                                    <p className="text-2xl text-black">An</p>
+                                </div>
                             </div>
                         </div>
                     ))
                 }
-
             </div>
             <div className="w-[75%] flex flex-col justify-start items-center mx-4 h-[85vh]">
                 <div ref={quillRef} className="bg-white text-black w-full rounded-[12px] p-2 h-full" />
                 <div className="flex w-full justify-between mt-3">
-                    <button className="alt-btn">Download</button>
-                    <button className="dng-btn">Leave Room</button>
+                    <button className="alt-btn" onClick={downloadDocument}>Download</button>
+                    <button className="dng-btn" onClick={leaveRoom}>Leave Room</button>
                 </div>
             </div>
         </div>
