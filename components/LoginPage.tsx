@@ -1,7 +1,20 @@
+
 import Image from 'next/image'
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useUser } from '@auth0/nextjs-auth0/client';
+import { useRouter } from 'next/router';
+
+
 
 const LoginPage = () => {
+    const router = useRouter();
+    
+    const { user } = useUser();
+    useEffect(()=>{
+        if(user){
+            router.push('/dashboard')
+        }
+    },[user,router])
   return (
     <div className='bg-gray-900 text-white block lg:flex justify-center items-center h-screen'>
         <div className='w-[100%] lg:w-[50%] text-[5vw] flex justify-center items-center font-bold px-5'>
@@ -18,9 +31,16 @@ const LoginPage = () => {
                         Join here with your friends and start scribing your ideas & thoughts
                     </p>
                 </div>
-                    <button className=' w-[50%] h-[35px] std-btn'>
-                        <p>Login</p>
-                    </button>
+                    {!user ? (
+                        <a href='/api/auth/login' className='w-[50%] h-[35px] std-btn text-center'>
+                            Login with Auth0
+                        </a>
+                    ) : (
+                        <a href='/api/auth/logout' className='w-[50%] h-[35px] std-btn text-center'>
+                            Logout
+                        </a>
+                    )}
+
                     <div className='flex justify-evenly gap-5'>
                         <Image alt='logo'  src="/images/facebook.png" width={50} height={50} />
                         <Image alt='logo'  src="/images/insta.jpg" width={50} height={50} />
